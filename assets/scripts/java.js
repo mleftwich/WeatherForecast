@@ -59,7 +59,7 @@ function getLocation() {
             const uv = weather.uvi;
             const timezone = locationWeather.timezone;
             const currentDate = moment(weather.dt, "X").format("DD");
-            console.log(currentDate);
+          
 
             // populate current city table
             $(cityEl).text(timezone);
@@ -68,37 +68,52 @@ function getLocation() {
             $(windEl).text(wind + "km/h");
             $(uvEl).text(uv);
 
-        // GET 5 DAY FORECAST
+            // GET 5 DAY FORECAST
 
-        fetch(`https://api.openweathermap.org/data/2.5/forecast?lat=${cityLat}&lon=${cityLon}&appid=${apiKey}&units=metric`)
-        .then(function(forecast) {
-            const fiveDay = forecast.json();
-            //console.log(fiveDay);
-            return fiveDay
-        })
-        .then(function(fiveDay) {
-            const weekPlan = fiveDay.list;
-            const dayOne = weekPlan[5].main
-            const dayTwo = weekPlan[15].main
-            const dayThree = weekPlan[25].main
-            const dayFour = weekPlan[35].main
-            const dayFive = weekPlan[39].main
-            
-            const dayOneEl = $(".day-one")
-            const dayOneP = $("<p>")
-            const dayOneInfo = [
-                {
-                date: moment(weekPlan[5].dt, "X").format("DD/MM/YYYY"),
-                temp: dayOne.temp,
-                humidity: dayOne.humidity,
-                wind: weekPlan[5].wind.speed
-            }]
-            $(dayOneP).text(dayOneInfo).val
-            $(dayOneEl).append(dayOneP)
-            
+            fetch(
+              `https://api.openweathermap.org/data/2.5/forecast?lat=${cityLat}&lon=${cityLon}&appid=${apiKey}&units=metric`
+            )
+              .then(function (forecast) {
+                const fiveDay = forecast.json();
+                return fiveDay;
+              })
+              .then(function (fiveDay) {
+                const weekPlan = fiveDay.list;
+                
+                // get date
+                const date0 = weekPlan[7]
+                const date1 = weekPlan[14]
+                const date2 = weekPlan[21]
+                const date3 = weekPlan[28]
+                const date4 = weekPlan[35]
+                
+                // get weather info from date
+                const day0 = weekPlan[7].main;
+                const day1 = weekPlan[14].main;
+                const day2 = weekPlan[21].main;
+                const day3 = weekPlan[28].main;
+                const day4 = weekPlan[35].main;
+                
+                // loop for 5 days
+                let count = "";
+                for (let index = 0; index < 5; index++) {
+                  let count = eval("day" + index);
+                  let date = eval("date" + index);
+                
+                  // set variables for weather info
+                  const weekDate = moment(date.dt, "X").format("ll")
+                  const weekTemp = count.temp;
+                  const weekHumidity = count.humidity;
+                  const weekWind = weekPlan[index].wind.speed;
+                  
+                  // create info in DOM
+                  console.log(weekDate);
+                  console.log(weekTemp)
+                  const dayDiv = $("<div>");
+                  $(dayDiv).attr("class", "col-2");
+                }
+              });
 
-        })
-    
             // add city to search history
             const cityData = [
               {
@@ -109,7 +124,7 @@ function getLocation() {
               },
             ];
             localStorage.setItem(searchCity, JSON.stringify(cityData));
-            
+
             // create history in DOM
             const historyEL = $("#history");
             const historyBtn = $("<button>");
