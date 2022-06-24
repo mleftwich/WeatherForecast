@@ -8,13 +8,14 @@ const tempEl = $(".temp");
 const humidityEl = $(".humidity");
 const windEl = $(".wind");
 const uvEl = $(".uv");
-const forecastEl = $("#five-day")
-const conditionsEl = $("<img>")
+const forecastEl = $("#five-day");
+const conditionsEl = $("<img>");
+$(conditionsEl).attr("class", "w-100");
 
 // WHEN THE SEARCH BUTTON IS CLICKED
 
 searchBtn.click(function () {
-  $(conditionsEl).attr("src", "")
+  $(conditionsEl).attr("src", "");
   let searchCity = userInput.val();
   getLocation(searchCity);
 });
@@ -22,7 +23,7 @@ searchBtn.click(function () {
 // FUNCTION TO ACCESS WEATHER API
 
 function getLocation(searchCity) {
-  $(forecastEl).empty()
+  $(forecastEl).empty();
   // request api based on city name
   return (
     fetch(
@@ -61,27 +62,49 @@ function getLocation(searchCity) {
             const uv = weather.uvi;
             const timezone = locationWeather.timezone;
             const currentDate = moment(weather.dt, "X").format("DD");
-            
+
             // create weather image depending on conditions
-            const weatherCon = weather.weather
-            const conditions = weatherCon[0].main
-            const conditionsDiv = $("#conditions")
-            
-            $(conditionsDiv).append(conditionsEl)
-            if(conditions === "Clouds") {
-              $(conditionsEl).attr("src", "http://openweathermap.org/img/wn/02d@2x.png")
+            const weatherCon = weather.weather;
+            const conditions = weatherCon[0].main;
+            const conditionsDiv = $("#conditions");
+
+            $(conditionsDiv).append(conditionsEl);
+            if (conditions === "Clouds") {
+              $(conditionsEl).attr(
+                "src",
+                "http://openweathermap.org/img/wn/02d@2x.png"
+              );
             }
-            if(conditions === "Clear") {
-              $(conditionsEl).attr("src", "http://openweathermap.org/img/wn/01d@2x.png")
+            if (conditions === "Clear") {
+              $(conditionsEl).attr(
+                "src",
+                "http://openweathermap.org/img/wn/01d@2x.png"
+              );
             }
-            if(conditions === "Rain") {
-              $(conditionsEl).attr("src", "http://openweathermap.org/img/wn/10d@2x.png")
+            if (conditions === "Rain") {
+              $(conditionsEl).attr(
+                "src",
+                "http://openweathermap.org/img/wn/10d@2x.png"
+              );
             }
-            if(conditions === "Thunderstorm") {
-              $(conditionsEl).attr("src", "http://openweathermap.org/img/wn/11d@2x.png")
+            if (conditions === "Thunderstorm") {
+              $(conditionsEl).attr(
+                "src",
+                "http://openweathermap.org/img/wn/11d@2x.png"
+              );
             }
 
-            
+            // uv index colour
+            if (uv < 3) {
+              $(uvEl).attr("class", "text-success");
+            }
+            if (uv > 3) {
+              $(uvEl).attr("class", "text-warning");
+            }
+            if (uv > 5) {
+              $(uvEl).attr("class", "text-danger");
+            }
+
             // populate current city table
             $(cityEl).text(timezone);
             $(tempEl).text(temp + "°");
@@ -100,58 +123,79 @@ function getLocation(searchCity) {
               })
               .then(function (fiveDay) {
                 const weekPlan = fiveDay.list;
-                
+
                 // get date
-                const date0 = weekPlan[7]
-                const date1 = weekPlan[14]
-                const date2 = weekPlan[21]
-                const date3 = weekPlan[28]
-                const date4 = weekPlan[35]
-                
+                const date0 = weekPlan[7];
+                const date1 = weekPlan[14];
+                const date2 = weekPlan[21];
+                const date3 = weekPlan[28];
+                const date4 = weekPlan[35];
+
                 // get weather info from date
                 const day0 = weekPlan[7].main;
                 const day1 = weekPlan[14].main;
                 const day2 = weekPlan[21].main;
                 const day3 = weekPlan[28].main;
                 const day4 = weekPlan[35].main;
-                
+
                 // loop for 5 days
                 let count = "";
                 for (let index = 0; index < 5; index++) {
                   let count = eval("day" + index);
                   let date = eval("date" + index);
-                
+
                   // set variables for weather info
-                  const weekDate = moment(date.dt, "X").format("MMMM Do")
+                  const weekDate = moment(date.dt, "X").format("MMMM Do");
                   const weekTemp = count.temp;
                   const weekHumidity = count.humidity;
                   const weekWind = weekPlan[index].wind.speed;
-                  
-                  
-                  
+
                   // create info in DOM
-                  
                   const dayDiv = $("<div>");
                   $(dayDiv).attr("class", "col-2 bg-dark m-1 text-light");
-                  const forecastCityEl = $("<h5>");
-                  $(forecastCityEl).attr("class", "text-info card-title")
+                  const forecastConEl = $("<img>");
+
                   const dateTitleEl = $("<h5>");
                   const weekTempEl = $("<p>");
                   const weekHumidityEl = $("<p>");
                   const weekWindEl = $("<p>");
-                  $(forecastCityEl).text(searchCity.toUpperCase())
-                  $(dayDiv).append(forecastCityEl)
-                  $(dateTitleEl).text(weekDate)
-                  $(weekTempEl).text("Temp: " + weekTemp + "°")
-                  $(weekHumidityEl).text("Humidity: " + weekHumidity + "%")
-                  $(weekWindEl).text("Wind speed: " + weekWind + "km/h")
-                  $(dayDiv).append(dateTitleEl)
-                  $(dayDiv).append(weekTempEl)
-                  $(dayDiv).append(weekHumidityEl)
-                  $(dayDiv).append(weekWindEl)
-                  $(forecastEl).append(dayDiv)
-                  
 
+                  $(dateTitleEl).text(weekDate);
+                  $(weekTempEl).text("Temp: " + weekTemp + "°");
+                  $(weekHumidityEl).text("Humidity: " + weekHumidity + "%");
+                  $(weekWindEl).text("Wind speed: " + weekWind + "km/h");
+                  $(dayDiv).append(dateTitleEl);
+                  $(dayDiv).append(forecastConEl);
+                  $(dayDiv).append(weekTempEl);
+                  $(dayDiv).append(weekHumidityEl);
+                  $(dayDiv).append(weekWindEl);
+                  $(forecastEl).append(dayDiv);
+                  const forecastCon = weekPlan[index].weather[0].main;
+                  if (forecastCon === "Clouds") {
+                    $(forecastConEl).attr(
+                      "src",
+                      "http://openweathermap.org/img/wn/02d@2x.png"
+                    );
+                  }
+                  if (forecastCon === "Clear") {
+                    $(forecastConEl).attr(
+                      "src",
+                      "http://openweathermap.org/img/wn/01d@2x.png"
+                    );
+                  }
+                  if (forecastCon === "Rain") {
+                    $(forecastConEl).attr(
+                      "src",
+                      "http://openweathermap.org/img/wn/10d@2x.png"
+                    );
+                  }
+                  if (forecastCon === "Thunderstorm") {
+                    $(forecastConEl).attr(
+                      "src",
+                      "http://openweathermap.org/img/wn/11d@2x.png"
+                    );
+                  }
+                  console.log(forecastCon);
                 }
               });
 
@@ -171,16 +215,15 @@ function getLocation(searchCity) {
             const historyEL = $("#history");
             const historyBtn = $("<button>");
             $(historyBtn).attr("class", "btn btn-secondary w-100");
-            $(historyBtn).attr("id", "previous")
+            $(historyBtn).attr("id", "previous");
             $(historyBtn).text(searchCity.toUpperCase());
             $(historyEL).append(historyBtn, "<br>");
-          
-            $(historyBtn).click(function() {
-              const previousCity = $(historyBtn).text()
+
+            $(historyBtn).click(function () {
+              const previousCity = $(historyBtn).text();
               getLocation(previousCity);
-            })
+            });
           });
       })
   );
 }
-
