@@ -8,19 +8,21 @@ const tempEl = $(".temp");
 const humidityEl = $(".humidity");
 const windEl = $(".wind");
 const uvEl = $(".uv");
+const forecastEl = $("#five-day")
+const conditionsEl = $("<img>")
 
 // WHEN THE SEARCH BUTTON IS CLICKED
 
 searchBtn.click(function () {
-  getLocation();
+  $(conditionsEl).attr("src", "")
+  let searchCity = userInput.val();
+  getLocation(searchCity);
 });
 
 // FUNCTION TO ACCESS WEATHER API
 
-function getLocation() {
-  // get city
-  let searchCity = userInput.val();
-
+function getLocation(searchCity) {
+  $(forecastEl).empty()
   // request api based on city name
   return (
     fetch(
@@ -59,8 +61,27 @@ function getLocation() {
             const uv = weather.uvi;
             const timezone = locationWeather.timezone;
             const currentDate = moment(weather.dt, "X").format("DD");
-          
+            
+            // create weather image depending on conditions
+            const weatherCon = weather.weather
+            const conditions = weatherCon[0].main
+            const conditionsDiv = $("#conditions")
+            
+            $(conditionsDiv).append(conditionsEl)
+            if(conditions === "Clouds") {
+              $(conditionsEl).attr("src", "http://openweathermap.org/img/wn/02d@2x.png")
+            }
+            if(conditions === "Clear") {
+              $(conditionsEl).attr("src", "http://openweathermap.org/img/wn/01d@2x.png")
+            }
+            if(conditions === "Rain") {
+              $(conditionsEl).attr("src", "http://openweathermap.org/img/wn/10d@2x.png")
+            }
+            if(conditions === "Thunderstorm") {
+              $(conditionsEl).attr("src", "http://openweathermap.org/img/wn/11d@2x.png")
+            }
 
+            
             // populate current city table
             $(cityEl).text(timezone);
             $(tempEl).text(temp + "°");
@@ -101,16 +122,36 @@ function getLocation() {
                   let date = eval("date" + index);
                 
                   // set variables for weather info
-                  const weekDate = moment(date.dt, "X").format("ll")
+                  const weekDate = moment(date.dt, "X").format("MMMM Do")
                   const weekTemp = count.temp;
                   const weekHumidity = count.humidity;
                   const weekWind = weekPlan[index].wind.speed;
                   
+                  
+                  
                   // create info in DOM
-                  console.log(weekDate);
-                  console.log(weekTemp)
+                  
                   const dayDiv = $("<div>");
-                  $(dayDiv).attr("class", "col-2");
+                  $(dayDiv).attr("class", "col-2 bg-dark m-1 text-light");
+                  const forecastCityEl = $("<h5>");
+                  $(forecastCityEl).attr("class", "text-info card-title")
+                  const dateTitleEl = $("<h5>");
+                  const weekTempEl = $("<p>");
+                  const weekHumidityEl = $("<p>");
+                  const weekWindEl = $("<p>");
+                  $(forecastCityEl).text(searchCity.toUpperCase())
+                  $(dayDiv).append(forecastCityEl)
+                  $(dateTitleEl).text(weekDate)
+                  $(weekTempEl).text("Temp: " + weekTemp + "°")
+                  $(weekHumidityEl).text("Humidity: " + weekHumidity + "%")
+                  $(weekWindEl).text("Wind speed: " + weekWind + "km/h")
+                  $(dayDiv).append(dateTitleEl)
+                  $(dayDiv).append(weekTempEl)
+                  $(dayDiv).append(weekHumidityEl)
+                  $(dayDiv).append(weekWindEl)
+                  $(forecastEl).append(dayDiv)
+                  
+
                 }
               });
 
@@ -121,6 +162,7 @@ function getLocation() {
                 humidity: weather.humidity,
                 wind: weather.wind_speed,
                 uv: weather.uvi,
+                cond: conditions,
               },
             ];
             localStorage.setItem(searchCity, JSON.stringify(cityData));
@@ -129,9 +171,16 @@ function getLocation() {
             const historyEL = $("#history");
             const historyBtn = $("<button>");
             $(historyBtn).attr("class", "btn btn-secondary w-100");
-            $(historyBtn).text(searchCity);
+            $(historyBtn).attr("id", "previous")
+            $(historyBtn).text(searchCity.toUpperCase());
             $(historyEL).append(historyBtn, "<br>");
+          
+            $(historyBtn).click(function() {
+              const previousCity = $(historyBtn).text()
+              getLocation(previousCity);
+            })
           });
       })
   );
 }
+
