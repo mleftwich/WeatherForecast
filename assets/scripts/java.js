@@ -61,7 +61,7 @@ function getLocation(searchCity) {
             const wind = weather.wind_speed;
             const uv = weather.uvi;
             const timezone = locationWeather.timezone;
-            const currentDate = moment(weather.dt, "X").format("DD");
+            const currentDate = moment(weather.dt, "X").format("MMMM Do");
 
             // create weather image depending on conditions
             const weatherCon = weather.weather;
@@ -105,8 +105,9 @@ function getLocation(searchCity) {
               $(uvEl).attr("class", "text-danger");
             }
 
+            
             // populate current city table
-            $(cityEl).text(timezone);
+            $(cityEl).text(timezone + " / " + currentDate);
             $(tempEl).text(temp + "°");
             $(humidityEl).text(humidity + "%");
             $(windEl).text(wind + "km/h");
